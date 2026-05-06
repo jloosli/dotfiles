@@ -1,6 +1,6 @@
 # ---- PATH & env ----
 export PATH="$HOME/.local/bin:$PATH"
-export EDITOR='nvim'
+export EDITOR='vi'
 export VISUAL="$EDITOR"
 
 # ---- Oh My Zsh ----

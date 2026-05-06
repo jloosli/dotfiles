@@ -49,6 +49,19 @@ stow -D zsh
 stow -R zsh
 ```
 
+## Machine-specific overrides
+
+The `zsh` package sources `~/.zshrc.local` at the end of `.zshrc` if the file exists. Use this for anything that shouldn't be shared across machines — different `$PATH` entries, work credentials, machine-specific aliases, etc.
+
+```bash
+# ~/.zshrc.local (not tracked in git)
+export PATH="/opt/work-sdk/bin:$PATH"
+export SOME_API_KEY="abc123"
+alias vpn='open -a "Corporate VPN"'
+```
+
+This file is listed in `.gitignore` so it will never be accidentally committed. On machines where it doesn't exist, the shell starts cleanly with no errors.
+
 ## Adding a new package
 
 ```bash

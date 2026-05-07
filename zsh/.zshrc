@@ -75,5 +75,14 @@ if command -v brew >/dev/null 2>&1; then
   unset _brew_prefix
 fi
 
+# ---- Functions ----
+wt() {
+  command -v fzf >/dev/null || { echo "wt: fzf not installed (brew install fzf)"; return 1; }
+  git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "wt: not inside a git repository"; return 1; }
+  local target
+  target=$(git worktree list --porcelain | sed -n 's/^worktree //p' | fzf --prompt="worktree> ")
+  [[ -n "$target" ]] && cd "$target"
+}
+
 # ---- Local overrides ----
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

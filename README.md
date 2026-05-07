@@ -10,6 +10,28 @@ Personal config files managed with [GNU Stow](https://www.gnu.org/software/stow/
 | `tmux`  | `.tmux.conf` |
 | `vim`   | `.vimrc` |
 
+## Recommended installs
+
+These tools are used by `.zshrc` and the configs in this repo. Install them before or after running `install.sh`.
+
+```bash
+# Package manager (macOS)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Shell enhancements (used by .zshrc)
+brew install fzf                       # fuzzy finder — used by wt() worktree picker
+brew install zsh-autosuggestions       # inline suggestions from history
+brew install zsh-syntax-highlighting   # live syntax coloring
+
+# Oh My Zsh (zsh theme + plugin framework)
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+# Node version manager
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash
+```
+
+> **Note:** `zsh-autosuggestions` and `zsh-syntax-highlighting` are sourced via Homebrew paths in `.zshrc`. If you install them another way, source them manually in `~/.zshrc.local`.
+
 ## Install on a new machine
 
 ```bash

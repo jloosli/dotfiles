@@ -17,6 +17,8 @@ plugins=(
   history-substring-search
 )
 
+zstyle ':omz:update' mode auto
+
 source $ZSH/oh-my-zsh.sh
 
 # ---- History ----

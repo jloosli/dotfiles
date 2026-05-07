@@ -51,16 +51,18 @@ if [ -z "$SSH_AUTH_SOCK" ]; then
 fi
 
 # ---- NVM (lazy-loaded so it doesn't slow shell startup) ----
+# Note: helper name avoids leading underscore so Claude Code's shell-snapshot
+# tool (which filters out _-prefixed user funcs) keeps it alongside the shims.
 export NVM_DIR="$HOME/.nvm"
-_load_nvm() {
-  unset -f nvm node npm npx
+load_nvm() {
+  unset -f nvm node npm npx 2>/dev/null
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 }
-nvm()  { _load_nvm; nvm  "$@"; }
-node() { _load_nvm; node "$@"; }
-npm()  { _load_nvm; npm  "$@"; }
-npx()  { _load_nvm; npx  "$@"; }
+nvm()  { load_nvm; nvm "$@"; }
+node() { load_nvm; command node "$@"; }
+npm()  { load_nvm; command npm  "$@"; }
+npx()  { load_nvm; command npx  "$@"; }
 
 # ---- zsh-autosuggestions / zsh-syntax-highlighting ----
 # Install: brew install zsh-autosuggestions zsh-syntax-highlighting

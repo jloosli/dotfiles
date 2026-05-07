@@ -12,8 +12,9 @@ for arg in "$@"; do
     case "$arg" in
         -f|--force) FORCE=1 ;;
         -h|--help)
-            echo "Usage: $0 [-f|--force]"
+            echo "Usage: $0 [-f|--force] [-h|--help]"
             echo "  -f, --force   Back up conflicting files to <file>.bak before stowing"
+            echo "  -h, --help    Show this help message and exit"
             exit 0
             ;;
         *) echo "Unknown option: $arg" >&2; exit 1 ;;
@@ -43,6 +44,10 @@ if [[ "$FORCE" -eq 1 ]]; then
         target="$HOME/$rel"
         if [[ -e "$target" && ! -L "$target" ]]; then
             backup="${target}.bak"
+            # Don't clobber an existing backup; add a timestamp suffix.
+            if [[ -e "$backup" ]]; then
+                backup="${target}.bak.$(date +%Y%m%d%H%M%S)"
+            fi
             echo "  $target -> $backup"
             mv "$target" "$backup"
         fi

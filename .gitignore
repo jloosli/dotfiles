@@ -2,3 +2,4 @@
 *.swp
 *.tmp
 .zshrc.local
+.claude/

@@ -7,6 +7,22 @@ set -e
 
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+FORCE=0
+for arg in "$@"; do
+    case "$arg" in
+        -f|--force) FORCE=1 ;;
+        -h|--help)
+            echo "Usage: $0 [-f|--force] [-h|--help]"
+            echo "  -f, --force   Back up conflicting files to <file>.bak before stowing"
+            echo "  -h, --help    Show this help message and exit"
+            exit 0
+            ;;
+        *) echo "Unknown option: $arg" >&2; exit 1 ;;
+    esac
+done
+
+PACKAGES=(zsh tmux vim nvim)
+
 # Install Stow if needed
 if ! command -v stow &> /dev/null; then
     echo "Installing GNU Stow..."
@@ -19,9 +35,28 @@ fi
 
 cd "$DOTFILES_DIR"
 
+if [[ "$FORCE" -eq 1 ]]; then
+    echo "Force mode: backing up conflicting files..."
+    # Parse stow's conflict output and back up each existing target
+    conflicts=$(stow -n -t "$HOME" "${PACKAGES[@]}" 2>&1 | \
+        grep -oE 'existing target [^ ]+' | awk '{print $3}' | sort -u)
+    for rel in $conflicts; do
+        target="$HOME/$rel"
+        if [[ -e "$target" && ! -L "$target" ]]; then
+            backup="${target}.bak"
+            # Don't clobber an existing backup; add a timestamp suffix.
+            if [[ -e "$backup" ]]; then
+                backup="${target}.bak.$(date +%Y%m%d%H%M%S)"
+            fi
+            echo "  $target -> $backup"
+            mv "$target" "$backup"
+        fi
+    done
+fi
+
 # Create symlinks for all packages
 echo "Creating symlinks..."
-stow -t "$HOME" zsh tmux vim nvim
+stow -t "$HOME" "${PACKAGES[@]}"
 
 echo ""
 echo "✓ Dotfiles installed!"

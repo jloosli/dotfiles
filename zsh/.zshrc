@@ -75,5 +75,12 @@ if command -v brew >/dev/null 2>&1; then
   unset _brew_prefix
 fi
 
+# ---- Functions ----
+wt() {
+  local target
+  target=$(git worktree list | fzf --prompt="worktree> " | awk '{print $1}')
+  [[ -n "$target" ]] && cd "$target"
+}
+
 # ---- Local overrides ----
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

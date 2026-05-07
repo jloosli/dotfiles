@@ -21,7 +21,7 @@ cd "$DOTFILES_DIR"
 
 # Create symlinks for all packages
 echo "Creating symlinks..."
-stow zsh tmux vim
+stow -t "$HOME" zsh tmux vim
 
 echo ""
 echo "✓ Dotfiles installed!"

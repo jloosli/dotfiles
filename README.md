@@ -9,6 +9,7 @@ Personal config files managed with [GNU Stow](https://www.gnu.org/software/stow/
 | `zsh`   | `.zshrc` |
 | `tmux`  | `.tmux.conf` |
 | `vim`   | `.vimrc` |
+| `nvim`  | `.config/nvim/` _(optional)_ |
 
 ## Recommended installs
 

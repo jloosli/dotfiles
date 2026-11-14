@@ -89,6 +89,12 @@ wt() {
 # ---- Local overrides ----
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
+# Real node binaries on PATH (newest installed) so non-shell spawners like MCP
+# servers find npx; the nvm default alias is "lts/*", not a version directory.
+_node_bin="$(ls -1d "$HOME"/.nvm/versions/node/v* 2>/dev/null | sort -V | tail -1)/bin"
+[[ -d "$_node_bin" ]] && export PATH="$_node_bin:$PATH"
+unset _node_bin
+
 # Added by Antigravity
 export PATH="/Users/jaredloosli/.antigravity/antigravity/bin:$PATH"
 

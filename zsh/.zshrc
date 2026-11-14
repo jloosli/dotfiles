@@ -57,7 +57,9 @@ export NVM_DIR="$HOME/.nvm"
 load_nvm() {
   unset -f nvm node npm npx 2>/dev/null
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  # Completion only in interactive shells: non-interactive shells (Claude Code's
+  # Bash tool) never ran compinit, so sourcing it errors with "compdef:153".
+  [[ -o interactive ]] && [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 }
 nvm()  { load_nvm; nvm "$@"; }
 node() { load_nvm; command node "$@"; }
@@ -86,3 +88,13 @@ wt() {
 
 # ---- Local overrides ----
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# Added by Antigravity
+export PATH="/Users/jaredloosli/.antigravity/antigravity/bin:$PATH"
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/jaredloosli/.local/bin:$PATH"
+
+# Added by Antigravity IDE
+export PATH="/Users/jaredloosli/.antigravity-ide/antigravity-ide/bin:$PATH"

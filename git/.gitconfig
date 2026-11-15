@@ -1,6 +1,7 @@
 [user]
 	name = Jared Loosli
 	email = jloosli@gmail.com
+	signingkey = ~/.ssh/id_ed25519.pub
 [pull]
 	rebase = true
 [init]
@@ -13,3 +14,11 @@
 	enabled = true
 [diff]
 	algorithm = histogram
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers
+[commit]
+	gpgsign = true
+[tag]
+	gpgsign = true

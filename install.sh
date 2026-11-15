@@ -21,7 +21,7 @@ for arg in "$@"; do
     esac
 done
 
-PACKAGES=(zsh tmux vim nvim)
+PACKAGES=(zsh git tmux vim nvim)
 
 # Install Stow if needed
 if ! command -v stow &> /dev/null; then
@@ -34,6 +34,12 @@ if ! command -v stow &> /dev/null; then
 fi
 
 cd "$DOTFILES_DIR"
+
+# Install Homebrew packages from the Brewfile (macOS)
+if [[ "$OSTYPE" == "darwin"* ]] && command -v brew &> /dev/null && [[ -f Brewfile ]]; then
+    echo "Installing Homebrew packages from Brewfile..."
+    brew bundle --file=Brewfile
+fi
 
 if [[ "$FORCE" -eq 1 ]]; then
     echo "Force mode: backing up conflicting files..."

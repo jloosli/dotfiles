@@ -1,12 +1,19 @@
 # ---- PATH & env ----
-export PATH="$HOME/.local/bin:$PATH"
-export EDITOR='vi'
+# Keep PATH/fpath entries unique: re-prepending an existing entry moves it to the front.
+typeset -U path PATH fpath FPATH
+path=("$HOME/.local/bin" $path)
+export EDITOR='nvim'
 export VISUAL="$EDITOR"
 
 # ---- Oh My Zsh ----
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="candy"
+# Keep the completion cache out of $HOME.
+[[ -d "$HOME/.cache/zsh" ]] || mkdir -p "$HOME/.cache/zsh"
+ZSH_COMPDUMP="$HOME/.cache/zsh/zcompdump-${HOST%%.*}-${ZSH_VERSION}"
 
+# history-substring-search is loaded below, after zsh-syntax-highlighting,
+# because it must be sourced after that plugin to work correctly.
 plugins=(
   git
   macos
@@ -14,7 +21,6 @@ plugins=(
   docker
   docker-compose
   gh
-  history-substring-search
 )
 
 zstyle ':omz:update' mode auto
@@ -31,24 +37,9 @@ setopt HIST_REDUCE_BLANKS
 setopt SHARE_HISTORY
 setopt EXTENDED_HISTORY
 
-# ---- SSH agent (cache env between shells so we don't spawn a new agent per shell) ----
-SSH_ENV="$HOME/.ssh/agent.env"
-_start_ssh_agent() {
-  (umask 077; ssh-agent -s > "$SSH_ENV")
-  . "$SSH_ENV" > /dev/null
-  for key in ~/.ssh/id_*; do
-    [[ "$key" == *.pub ]] && continue
-    ssh-add --apple-use-keychain "$key" 2>/dev/null
-  done
-}
-if [ -z "$SSH_AUTH_SOCK" ]; then
-  if [ -f "$SSH_ENV" ]; then
-    . "$SSH_ENV" > /dev/null
-    ssh-add -l > /dev/null 2>&1 || _start_ssh_agent
-  else
-    _start_ssh_agent
-  fi
-fi
+# ---- SSH agent ----
+# macOS launchd already provides an agent (SSH_AUTH_SOCK). Keys load from the
+# Keychain on first use via `AddKeysToAgent yes` + `UseKeychain yes` in ~/.ssh/config.
 
 # ---- NVM (lazy-loaded so it doesn't slow shell startup) ----
 # Note: helper name avoids leading underscore so Claude Code's shell-snapshot
@@ -66,16 +57,17 @@ node() { load_nvm; command node "$@"; }
 npm()  { load_nvm; command npm  "$@"; }
 npx()  { load_nvm; command npx  "$@"; }
 
-# ---- zsh-autosuggestions / zsh-syntax-highlighting ----
+# ---- zsh-autosuggestions / zsh-syntax-highlighting / history-substring-search ----
 # Install: brew install zsh-autosuggestions zsh-syntax-highlighting
-if command -v brew >/dev/null 2>&1; then
-  _brew_prefix="$(brew --prefix)"
-  [ -f "$_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ] && \
-    source "$_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-  [ -f "$_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ] && \
-    source "$_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-  unset _brew_prefix
-fi
+# HOMEBREW_PREFIX comes from `brew shellenv` in ~/.zprofile.
+_brew_prefix="${HOMEBREW_PREFIX:-/opt/homebrew}"
+[ -f "$_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ] && \
+  source "$_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+[ -f "$_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ] && \
+  source "$_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+unset _brew_prefix
+[ -f "$ZSH/plugins/history-substring-search/history-substring-search.plugin.zsh" ] && \
+  source "$ZSH/plugins/history-substring-search/history-substring-search.plugin.zsh"
 
 # ---- Functions ----
 wt() {
@@ -87,20 +79,15 @@ wt() {
 }
 
 # ---- Local overrides ----
+# Machine-specific PATH entries (installer-added lines, SDKs, etc.) belong here.
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 # Real node binaries on PATH (newest installed) so non-shell spawners like MCP
 # servers find npx; the nvm default alias is "lts/*", not a version directory.
 _node_bin="$(ls -1d "$HOME"/.nvm/versions/node/v* 2>/dev/null | sort -V | tail -1)/bin"
-[[ -d "$_node_bin" ]] && export PATH="$_node_bin:$PATH"
+[[ -d "$_node_bin" ]] && path=("$_node_bin" $path)
 unset _node_bin
 
-# Added by Antigravity
-export PATH="/Users/jaredloosli/.antigravity/antigravity/bin:$PATH"
-
-
-# Added by Antigravity CLI installer
-export PATH="/Users/jaredloosli/.local/bin:$PATH"
-
-# Added by Antigravity IDE
-export PATH="/Users/jaredloosli/.antigravity-ide/antigravity-ide/bin:$PATH"
+# ---- zoxide (`z <dir>` jumps to frequent directories) ----
+# Keep near the end: it hooks into directory changes.
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"

@@ -6,10 +6,11 @@ Personal config files managed with [GNU Stow](https://www.gnu.org/software/stow/
 
 | Package | Files |
 |---------|-------|
-| `zsh`   | `.zshrc` |
+| `zsh`   | `.zshrc`, `.zprofile` (Homebrew PATH) |
+| `git`   | `.gitconfig`, `.config/git/ignore` |
 | `tmux`  | `.tmux.conf` |
 | `vim`   | `.vimrc` |
-| `nvim`  | `.config/nvim/` _(optional)_ |
+| `nvim`  | `.config/nvim/` (LazyVim) |
 
 ## Recommended installs
 
@@ -19,10 +20,12 @@ These tools are used by `.zshrc` and the configs in this repo. Install them befo
 # Package manager (macOS)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# Shell enhancements (used by .zshrc)
-brew install fzf                       # fuzzy finder — used by wt() worktree picker
-brew install zsh-autosuggestions       # inline suggestions from history
-brew install zsh-syntax-highlighting   # live syntax coloring
+# Everything in the Brewfile (install.sh runs this for you on macOS),
+# including fzf, zsh-autosuggestions, zsh-syntax-highlighting, zoxide, ripgrep, fd, bat
+brew bundle --file=~/.config/dotfiles/Brewfile
+
+# Refresh the Brewfile after installing/removing packages
+brew bundle dump --file=~/.config/dotfiles/Brewfile --force --no-vscode
 
 # Oh My Zsh (zsh theme + plugin framework)
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -83,7 +86,9 @@ export SOME_API_KEY="abc123"
 alias vpn='open -a "Corporate VPN"'
 ```
 
-This file is listed in `.gitignore` so it will never be accidentally committed. On machines where it doesn't exist, the shell starts cleanly with no errors.
+This file is listed in `.gitignore` so it will never be accidentally committed.
+
+> **Installers that append to `~/.zshrc`** (Antigravity, SDK installers, etc.) write into this repo through the symlink. Move those lines into `~/.zshrc.local` before committing, using `$HOME` rather than a hard-coded home path. On machines where it doesn't exist, the shell starts cleanly with no errors.
 
 ## Adding a new package
 

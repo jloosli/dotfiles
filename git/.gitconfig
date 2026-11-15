@@ -22,3 +22,5 @@
 	gpgsign = true
 [tag]
 	gpgsign = true
+[include]
+	path = ~/.config/git/config.local
